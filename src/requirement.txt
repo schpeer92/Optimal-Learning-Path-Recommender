@@ -1,0 +1,6 @@
+bnlearn==0.4.5
+gekko==1.0.1
+jupyterlab==3.2.2
+networkx==2.6.3
+pgmpy>=0.1.13
+pybbn==3.2.1
