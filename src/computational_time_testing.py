@@ -1,38 +1,8 @@
-#%%
-from build_test_cases import eight_node_test_graph, smallest_test_graph,example_graph, multiple_example_graph, pybbn_generate_graph
+from build_test_cases import  multiple_example_graph
 from lazy_learner import LazyLearner
-import networkx as nx
-import numpy as np
-
 from matplotlib import pyplot as plt
-from pybbn.generator.bbngenerator import convert_for_exact_inference, generate_singly_bbn,generate_multi_bbn
-from pybbn.generator.bbngenerator import convert_for_exact_inference
 
-#testing different graph instances and scaling them 
-#%%
-g,jointree = smallest_test_graph()
-ll = LazyLearner(g,jointree)
-ll.plot_graph()
-#ll.initialize_ip(2,0.5)
-
-#%%
-g,jointree = eight_node_test_graph()
-ll = LazyLearner(g,jointree)
-ll.plot_graph()
-#ll.initialize_ip(7,0.5)
-#%%
-n = 2
-g,jointree=multiple_example_graph(n)
-ll = LazyLearner(g,jointree)
-ll.plot_graph()
-# %%
-g,jointree = example_graph()
-ll = LazyLearner(g,jointree)
-ll.plot_graph()
-ll.initialize_ip(3,0.5)
-
-#%%
-n = 3
+n = 14
 x = list(range(1*4,n*4,4))
 solver_times = []
 total_times = []
@@ -63,4 +33,3 @@ for i in range(2):
 fig = plt.gcf()
 fig.set_size_inches(12, 8)
 plt.savefig("../computational_time_testing.jpg")
-# %%

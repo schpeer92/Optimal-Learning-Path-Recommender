@@ -14,11 +14,13 @@ import functools
 
 
 def timer(func):
-    """timefunc's doc"""
+    """
+    source:https://stackoverflow.com/questions/5478351/python-time-measure-function
+    """
 
     @functools.wraps(func)
     def time_closure(*args, **kwargs):
-        """time_wrapper's doc string"""
+        
         start = time.perf_counter()
         result = func(*args, **kwargs)
         time_elapsed = time.perf_counter() - start
@@ -42,6 +44,12 @@ class LazyLearner:
 
     @timer
     def build_evidence(self,node,value):
+        """[summary]
+
+        Args:
+            node ([type]): [description]
+            value ([type]): [description]
+        """
         state = "on" if value==1 else "off"
         ev = EvidenceBuilder() \
         .with_node(self.join_tree.get_bbn_node(node)) \
@@ -52,6 +60,16 @@ class LazyLearner:
     
     @timer
     def posterior_proba(self,parent_node_states:tuple, permutation_to_node_map:tuple,node)-> float:
+        """[summary]
+
+        Args:
+            parent_node_states (tuple): [description]
+            permutation_to_node_map (tuple): [description]
+            node ([type]): [description]
+
+        Returns:
+            float: [description]
+        """
         for binary_value, parent_node in zip(parent_node_states, permutation_to_node_map):
             self.build_evidence(parent_node,binary_value)
         proba = self.join_tree.get_posteriors()[node] 
@@ -75,6 +93,14 @@ class LazyLearner:
         return permutations, parents
     @timer   
     def create_CPT_with_parents(self, node):
+        """[summary]
+
+        Args:
+            node ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         permutations, parents = self.parent_permutations(node)
         num_parents = len(parents)
         dimensions = tuple(2 for i in range(num_parents))
@@ -97,6 +123,16 @@ class LazyLearner:
         return {node: self.model.Var(lb=0, ub=1, integer = True, value = 1) for node in Q}
     @timer
     def model_permutation_equations(self, cpt,x, realization, parents,target_node_value, threshold:float=0.5):
+        """[summary]
+
+        Args:
+            cpt ([type]): [description]
+            x ([type]): [description]
+            realization ([type]): [description]
+            parents ([type]): [description]
+            target_node_value ([type]): [description]
+            threshold (float, optional): [description]. Defaults to 0.5.
+        """
         if parents == ():    
             self.model.Equation(cpt[0]>= threshold*  x[target_node_value])
         elif target_node_value==1:
@@ -114,13 +150,23 @@ class LazyLearner:
         permutations, parents = self.parent_permutations(node)
         for realization in permutations:
             if target_node:
+                #1 argument to enforce the threhshold condition
                 self.model_permutation_equations(cpt,x,realization,parents, 1,threshold)
             else:
                 self.model_permutation_equations(cpt,x,realization,parents,node ,threshold)
     @timer
     def initialize_ip(self, target_node, threshold):
+        """[summary]
+
+        Args:
+            target_node ([type]): [description]
+            threshold ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         start = time.time()
-        self.model = GEKKO()
+        self.model = GEKKO(remote = False)
         threshold = self.model.Const(threshold)
         Q = self.backwards_traversal(target_node)
         CPT = self.create_CPT_for_all_nodes(Q, target_node)
@@ -144,6 +190,8 @@ class LazyLearner:
         self.model.Equation(z == sum(2**i * x[xi] for i, xi in enumerate(target_parents_variables)))
 
         for i,yi in enumerate(y):
+            #if i==z then the equation is 1 0 otherwise
+            # quadratic - no division by 0
             self.model.Equation(yi == 0**((i-z)**2))
 
         self.model.Minimize(  self.model.sum([x[i] for i in x]) - CPT[target_node].flatten()@y)
