@@ -1,5 +1,6 @@
 /.env
 /data
 /notebooks
+/presentation
 pdf
 *.png
