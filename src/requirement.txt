@@ -1,7 +1,12 @@
+black
 bnlearn==0.4.5
 gekko==1.0.1
+gurobipy==9.5.0
 jupyterlab==3.2.2
 networkx==2.6.3
+numba==0.55.1
+numpy==1.21.5
 pgmpy==0.1.13
+pydot==1.4.2
 pygraphviz==1.7
 pybbn==3.2.1
